@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   const quotes = JSON.parse(localStorage.getItem('quotes')) || [
-    { text: "Keep it simple.", category: "Simplicity" },
-    { text: "Stay positive.", category: "Positivity" },
-    { text: "Be yourself.", category: "Self" }
+      { text: "Keep it simple.", category: "Simplicity" },
+      { text: "Stay positive.", category: "Positivity" },
+      { text: "Be yourself.", category: "Self" }
   ];
 
   const quoteDisplay = document.getElementById('quoteDisplay');
@@ -25,14 +25,39 @@ document.addEventListener('DOMContentLoaded', () => {
       quoteDisplay.innerText = `${randomQuote.text} - ${randomQuote.category}`;
   }
 
+  async function postQuoteToServer(quote) {
+      try {
+          const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                  title: quote.text,
+                  body: quote.category,
+                  userId: 1
+              })
+          });
+          if (!response.ok) {
+              throw new Error('Failed to post quote to server');
+          }
+          const responseData = await response.json();
+          console.log('Quote posted to server successfully:', responseData);
+      } catch (error) {
+          console.error('Failed to post quote to server', error);
+      }
+  }
+
   function addQuote() {
       const text = newQuoteText.value.trim();
       const category = newQuoteCategory.value.trim();
       if (text && category) {
-          quotes.push({ text, category });
+          const newQuote = { text, category };
+          quotes.push(newQuote);
           newQuoteText.value = '';
           newQuoteCategory.value = '';
           saveQuotes();
+          postQuoteToServer(newQuote);
           alert('Quote added successfully!');
           populateCategories();
       } else {
@@ -104,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const response = await fetch('https://jsonplaceholder.typicode.com/posts');
           const serverQuotes = await response.json();
           serverQuotes.forEach(serverQuote => {
-              if (!quotes.some(quote => quote.text === serverQuote.text)) {
+              if (!quotes.some(quote => quote.text === serverQuote.title)) {
                   quotes.push({
                       text: serverQuote.title,
                       category: 'Server'
