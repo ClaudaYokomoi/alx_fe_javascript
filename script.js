@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function postQuoteToServer(quote) {
-        // Implementation for posting quote to the server
+        // Implementation for posting quote to the server (if needed)
     }
 
     function addQuote() {
@@ -76,15 +76,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function exportQuotesToJson() {
-        // Implementation for exporting quotes
+        const dataStr = JSON.stringify(quotes, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'quotes.json';
+        a.click();
+        URL.revokeObjectURL(url);
     }
 
     function importFromJsonFile(event) {
-        // Implementation for importing quotes from a file
+        const fileReader = new FileReader();
+        fileReader.onload = function(event) {
+            const importedQuotes = JSON.parse(event.target.result);
+            quotes.push(...importedQuotes);
+            saveQuotes();
+            alert('Quotes imported successfully!');
+            populateCategories();
+        };
+        fileReader.readAsText(event.target.files[0]);
     }
 
     function populateCategories() {
-        // Implementation for populating categories
+        const uniqueCategories = [...new Set(quotes.map(quote => quote.category))];
+        categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+        uniqueCategories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            categoryFilter.appendChild(option);
+        });
     }
 
     function getFilteredQuotes() {
@@ -101,11 +123,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadLastSelectedCategory() {
-        // Implementation for loading the last selected category
+        const lastSelectedCategory = localStorage.getItem('lastSelectedCategory');
+        if (lastSelectedCategory) {
+            categoryFilter.value = lastSelectedCategory;
+        }
     }
 
     async function fetchQuotesFromServer() {
-        // Implementation for fetching quotes from a server
+        // Implementation for fetching quotes from a server (if needed)
     }
 
     newQuoteButton.addEventListener('click', showRandomQuote);
@@ -119,9 +144,9 @@ document.addEventListener('DOMContentLoaded', () => {
     loadLastSelectedCategory();
     // Populate categories
     populateCategories();
-    // Fetch quotes from server periodically
-    setInterval(fetchQuotesFromServer, 60000); // Fetch every 60 seconds
-
     // Create the add quote form when the page loads
     createAddQuoteForm();
+    // Fetch quotes from server periodically
+    setInterval(fetchQuotesFromServer, 60000); // Fetch every 60 seconds
 });
+
