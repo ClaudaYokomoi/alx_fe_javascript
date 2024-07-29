@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const quoteDisplay = document.getElementById('quoteDisplay');
     const newQuoteButton = document.getElementById('newQuote');
-    const addQuoteButton = document.getElementById('addQuoteButton');
+    const addQuoteButton = document.getElementById('addQuoteButton'); // Getting the button by ID
     const newQuoteText = document.getElementById('newQuoteText');
     const newQuoteCategory = document.getElementById('newQuoteCategory');
     const exportQuotesButton = document.getElementById('exportQuotes');
@@ -150,8 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Set up event listeners
     newQuoteButton.addEventListener('click', showRandomQuote);
-    addQuoteButton.addEventListener('click', addQuote);
+    addQuoteButton.addEventListener('click', addQuote); // Using the event listener instead of onclick
     exportQuotesButton.addEventListener('click', exportQuotesToJson);
     importFileInput.addEventListener('change', importFromJsonFile);
     categoryFilter.addEventListener('change', filterQuotes);
