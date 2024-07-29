@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const quoteDisplay = document.getElementById('quoteDisplay');
     const newQuoteButton = document.getElementById('newQuote');
-    const addQuoteButton = document.getElementById('addQuoteButton'); // Getting the button by ID
+    const addQuoteButton = document.getElementById('addQuoteButton');
     const newQuoteText = document.getElementById('newQuoteText');
     const newQuoteCategory = document.getElementById('newQuoteCategory');
     const exportQuotesButton = document.getElementById('exportQuotes');
@@ -20,32 +20,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showRandomQuote() {
         const filteredQuotes = getFilteredQuotes();
+        if (filteredQuotes.length === 0) {
+            quoteDisplay.innerText = "No quotes available.";
+            return;
+        }
         const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
         const randomQuote = filteredQuotes[randomIndex];
         quoteDisplay.innerText = `${randomQuote.text} - ${randomQuote.category}`;
     }
 
-    async function postQuoteToServer(quote) {
-        try {
-            const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    title: quote.text,
-                    body: quote.category,
-                    userId: 1
-                })
-            });
-            if (!response.ok) {
-                throw new Error('Failed to post quote to server');
-            }
-            const responseData = await response.json();
-            console.log('Quote posted to server successfully:', responseData);
-        } catch (error) {
-            console.error('Failed to post quote to server', error);
-        }
+    function postQuoteToServer(quote) {
+        // Implementation for posting quote to the server
     }
 
     function addQuote() {
@@ -60,49 +45,46 @@ document.addEventListener('DOMContentLoaded', () => {
             postQuoteToServer(newQuote);
             alert('Quote added successfully!');
             populateCategories();
-            showLatestQuote(newQuote); // Display the latest quote in the DOM
+            showLatestQuote(newQuote); // Optional: Display the latest quote
         } else {
             alert('Please enter both quote text and category.');
         }
     }
 
-    // Function to display the latest quote in the DOM
-    function showLatestQuote(quote) {
-        quoteDisplay.innerText = `${quote.text} - ${quote.category}`;
+    function createAddQuoteForm() {
+        const formDiv = document.createElement('div');
+        const textInput = document.createElement('input');
+        const categoryInput = document.createElement('input');
+        const addButton = document.createElement('button');
+
+        textInput.id = 'newQuoteText';
+        textInput.type = 'text';
+        textInput.placeholder = 'Enter a new quote';
+
+        categoryInput.id = 'newQuoteCategory';
+        categoryInput.type = 'text';
+        categoryInput.placeholder = 'Enter quote category';
+
+        addButton.id = 'addQuoteButton';
+        addButton.innerText = 'Add Quote';
+        addButton.addEventListener('click', addQuote);
+
+        formDiv.appendChild(textInput);
+        formDiv.appendChild(categoryInput);
+        formDiv.appendChild(addButton);
+        document.body.appendChild(formDiv); // Append the form to the body or a specific container
     }
 
     function exportQuotesToJson() {
-        const dataStr = JSON.stringify(quotes, null, 2);
-        const blob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'quotes.json';
-        a.click();
-        URL.revokeObjectURL(url);
+        // Implementation for exporting quotes
     }
 
     function importFromJsonFile(event) {
-        const fileReader = new FileReader();
-        fileReader.onload = function(event) {
-            const importedQuotes = JSON.parse(event.target.result);
-            quotes.push(...importedQuotes);
-            saveQuotes();
-            alert('Quotes imported successfully!');
-            populateCategories();
-        };
-        fileReader.readAsText(event.target.files[0]);
+        // Implementation for importing quotes from a file
     }
 
     function populateCategories() {
-        const uniqueCategories = [...new Set(quotes.map(quote => quote.category))];
-        categoryFilter.innerHTML = '<option value="all">All Categories</option>';
-        uniqueCategories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category;
-            option.textContent = category;
-            categoryFilter.appendChild(option);
-        });
+        // Implementation for populating categories
     }
 
     function getFilteredQuotes() {
@@ -116,43 +98,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function filterQuotes() {
         showRandomQuote();
-        saveLastSelectedCategory();
-    }
-
-    function saveLastSelectedCategory() {
-        localStorage.setItem('lastSelectedCategory', categoryFilter.value);
     }
 
     function loadLastSelectedCategory() {
-        const lastSelectedCategory = localStorage.getItem('lastSelectedCategory');
-        if (lastSelectedCategory) {
-            categoryFilter.value = lastSelectedCategory;
-        }
+        // Implementation for loading the last selected category
     }
 
     async function fetchQuotesFromServer() {
-        try {
-            const response = await fetch('https://jsonplaceholder.typicode.com/posts');
-            const serverQuotes = await response.json();
-            serverQuotes.forEach(serverQuote => {
-                if (!quotes.some(quote => quote.text === serverQuote.title)) {
-                    quotes.push({
-                        text: serverQuote.title,
-                        category: 'Server'
-                    });
-                }
-            });
-            saveQuotes();
-            alert('Quotes synced from server successfully!');
-            populateCategories();
-        } catch (error) {
-            console.error('Failed to fetch quotes from server', error);
-        }
+        // Implementation for fetching quotes from a server
     }
 
-    // Set up event listeners
     newQuoteButton.addEventListener('click', showRandomQuote);
-    addQuoteButton.addEventListener('click', addQuote); // Using the event listener instead of onclick
     exportQuotesButton.addEventListener('click', exportQuotesToJson);
     importFileInput.addEventListener('change', importFromJsonFile);
     categoryFilter.addEventListener('change', filterQuotes);
@@ -165,5 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     populateCategories();
     // Fetch quotes from server periodically
     setInterval(fetchQuotesFromServer, 60000); // Fetch every 60 seconds
-});
 
+    // Create the add quote form when the page loads
+    createAddQuoteForm();
+});
