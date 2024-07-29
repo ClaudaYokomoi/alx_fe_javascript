@@ -60,9 +60,15 @@ document.addEventListener('DOMContentLoaded', () => {
             postQuoteToServer(newQuote);
             alert('Quote added successfully!');
             populateCategories();
+            showLatestQuote(newQuote); // Display the latest quote in the DOM
         } else {
             alert('Please enter both quote text and category.');
         }
+    }
+
+    // Function to display the latest quote in the DOM
+    function showLatestQuote(quote) {
+        quoteDisplay.innerText = `${quote.text} - ${quote.category}`;
     }
 
     function exportQuotesToJson() {
@@ -144,37 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function createAddQuoteForm() {
-        const form = document.createElement('form');
-        form.id = 'addQuoteForm';
-        
-        const textLabel = document.createElement('label');
-        textLabel.innerText = 'Quote Text:';
-        const textInput = document.createElement('input');
-        textInput.id = 'newQuoteText';
-        textInput.type = 'text';
-
-        const categoryLabel = document.createElement('label');
-        categoryLabel.innerText = 'Category:';
-        const categoryInput = document.createElement('input');
-        categoryInput.id = 'newQuoteCategory';
-        categoryInput.type = 'text';
-
-        const addButton = document.createElement('button');
-        addButton.id = 'addQuoteButton';
-        addButton.innerText = 'Add Quote';
-        addButton.type = 'button';
-        addButton.addEventListener('click', addQuote);
-
-        form.appendChild(textLabel);
-        form.appendChild(textInput);
-        form.appendChild(categoryLabel);
-        form.appendChild(categoryInput);
-        form.appendChild(addButton);
-
-        document.body.appendChild(form);
-    }
-
     newQuoteButton.addEventListener('click', showRandomQuote);
     addQuoteButton.addEventListener('click', addQuote);
     exportQuotesButton.addEventListener('click', exportQuotesToJson);
@@ -189,6 +164,5 @@ document.addEventListener('DOMContentLoaded', () => {
     populateCategories();
     // Fetch quotes from server periodically
     setInterval(fetchQuotesFromServer, 60000); // Fetch every 60 seconds
-    // Create the add quote form
-    createAddQuoteForm();
 });
+
