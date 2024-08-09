@@ -20,9 +20,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showRandomQuote() {
         const filteredQuotes = getFilteredQuotes();
-        const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
-        const randomQuote = filteredQuotes[randomIndex];
-        quoteDisplay.innerText = `${randomQuote.text} - ${randomQuote.category}`;
+        if (filteredQuotes.length > 0) {
+            const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
+            const randomQuote = filteredQuotes[randomIndex];
+            quoteDisplay.innerText = `${randomQuote.text} - ${randomQuote.category}`;
+        } else {
+            quoteDisplay.innerText = 'No quotes available';
+        }
     }
 
     async function postQuoteToServer(quote) {
@@ -124,10 +128,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function fetchQuotesFromServer() {
+    async function syncQuotes() {
         try {
             const response = await fetch('https://jsonplaceholder.typicode.com/posts');
             const serverQuotes = await response.json();
+
+            // Update local quotes with server quotes
             serverQuotes.forEach(serverQuote => {
                 if (!quotes.some(quote => quote.text === serverQuote.title)) {
                     quotes.push({
@@ -136,11 +142,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
             });
+
+            // Save updated quotes to local storage
             saveQuotes();
             alert('Quotes synced from server successfully!');
             populateCategories();
         } catch (error) {
-            console.error('Failed to fetch quotes from server', error);
+            console.error('Failed to sync quotes from server', error);
         }
     }
 
@@ -156,6 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadLastSelectedCategory();
     // Populate categories
     populateCategories();
-    // Fetch quotes from server periodically
-    setInterval(fetchQuotesFromServer, 60000); // Fetch every 60 seconds
+    // Sync quotes from server periodically
+    setInterval(syncQuotes, 60000); // Sync every 60 seconds
 });
